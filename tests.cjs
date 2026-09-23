@@ -18,3 +18,27 @@ const busy=p.busy_dates[0];assert.equal(recommend([p],{city:p.city,category:p.ca
 assert.equal(recommend([p],{city:p.city,category:p.categories[0],event:p.event_formats[0],date:free,budget:p.price_from_kzt-1,hours:'',language:''}).status,'no_match');
 const variants=new Set(Array.from({length:31},(_,i)=>recommend(data,{...base,date:`2026-10-${String(i+1).padStart(2,'0')}`}).cards.map(p=>p.id).join(',')));assert.ok(variants.size>1);
 console.log(`PASS: ${queries} real-data requests, repeatability, all filters, price boundaries, null hours, date changes. ${Math.round(performance.now()-begin)} ms`);
+const demo={...base,date:'2026-10-15',hours:6,language:'русский'};
+assert.equal(recommend(data,demo).eligible,6);
+assert.equal(recommend(data,{...demo,date:'2026-10-16'}).eligible,4);
+const florist={...demo,category:'Флорист',event:'свадьба',budget:300000,hours:'',language:''};
+assert.equal(recommend(data,florist).eligible,2);
+assert.equal(recommend(data,{...florist,budget:100000}).status,'no_match');
+assert.equal(recommend(data,{...florist,city:'Астана',category:'Декоратор'}).status,'category_absent');
+const {wishMatches}=require('./dist/engine.js');
+assert.deepEqual(wishMatches('Импровизация и современные интерактивы.','импровизация и интерактивы'),['импровизация','интерактивы']);
+assert.deepEqual(wishMatches('Постановка и портреты.','без постановки'),[]);
+assert.deepEqual(wishMatches('Работаем без постановки.','без постановки'),['без постановки']);
+assert.deepEqual(wishMatches('Без импровизации.','импровизация'),[]);
+const template={...data[0],city:demo.city,categories:[demo.category],event_formats:[demo.event],languages:['русский'],max_hours:8,busy_dates:[]};
+const fixtures=[{...template,id:'A',price_from_kzt:100,description:'Классический формат и работа по сценарию.'},{...template,id:'B',price_from_kzt:200,description:'Импровизация и интерактивы для гостей.'},{...template,id:'C',price_from_kzt:50,description:'Импровизация и интерактивы для гостей.',busy_dates:[demo.date]}];
+assert.equal(recommend(fixtures,demo).cards[0].id,'A');
+const wished={...demo,wishes:'импровизация и интерактивы'};
+const ranked=recommend(fixtures,wished);
+assert.deepEqual(ranked.cards.map(p=>p.id),['B','A']);
+assert.deepEqual(ranked,recommend(fixtures,wished));
+assert.equal(recommend(fixtures,{...wished,budget:150}).cards[0].id,'A');
+assert.throws(()=>recommend(data,{...demo,wishes:'x'.repeat(501)}));
+for(const card of ranked.cards){const exp=explanation(card,wished,ranked.cards);if(exp.differences.some(x=>x.includes('Самая низкая')))assert.equal(card.id,'A');}
+const cards=recommend(data,demo).cards;assert.equal(new Set(cards.map(p=>explanation(p,demo,cards).detail)).size,cards.length);
+console.log('PASS: shared-chat demo counts, preference ordering, hard constraints, simple negation, distinct evidence, comparison truthfulness.');
