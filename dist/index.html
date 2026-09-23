@@ -14,7 +14,7 @@
     
 <meta name="description" content="Mereke — до трёх event-подрядчиков по вашим условиям, с проверяемыми объяснениями.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23F4DF8A'/%3E%3Cpath d='M8 23V9l8 9 8-9v14' fill='none' stroke='%234B3D1F' stroke-width='3'/%3E%3C/svg%3E">
-<link rel="stylesheet" href="butter.css"><script defer src="data.js"></script><script defer src="engine.js"></script><script defer src="front.js"></script></head>
+<link rel="stylesheet" href="butter.css"><script defer src="data.js"></script><script defer src="engine.js"></script><script defer src="front.js"></script><script defer src="ai.js"></script></head>
 <body class="h-full text-slate-800 antialiased font-sans flex flex-col bg-slate-50 selection:bg-brand-500 selection:text-white">
 
     <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200/80">
@@ -152,7 +152,11 @@
                 </div>
             </div>
 
-<div id="query-summary" aria-live="polite"></div><div id="date-change" aria-live="polite"></div>
+<section class="ai-panel" aria-label="Объяснения с ИИ">
+  <div><strong>Сравните варианты с ИИ</strong><p id="ai-status" role="status" aria-live="polite"></p>
+  <p class="ai-privacy">По нажатию кнопки параметры заказа, пожелания и описания выбранных профилей отправляются в OpenAI. Не указывайте личные данные в пожеланиях.</p></div>
+  <button id="ai-explain" type="button" class="primary">✦ Объяснить выбор с ИИ</button>
+</section><div id="query-summary" aria-live="polite"></div><div id="date-change" aria-live="polite"></div>
             <!-- Vendor Cards Container (3 Max) -->
             <div id="vendor-cards-grid" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Cards will be populated by JS -->
